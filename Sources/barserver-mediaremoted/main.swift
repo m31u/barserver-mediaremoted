@@ -109,10 +109,29 @@ class MediaRemoteManager {
             getIsNowPlaying()
         }
 
-        ws = WebSocketDaemonClient("ws://localhost:3000/daemon?name=mediaremoted") { [self] in
-            getNowPlayingInfo()
-            getIsNowPlaying()
+    }
+
+    func waitForHeartbeat() {
+        guard let url = URL(string: "http://localhost:3000/heartbeat") else {
+            return
         }
+        let req = URLRequest(url: url)
+
+        let task = URLSession.shared.dataTask(with: req) { [self] _, _, err in
+            if err != nil {
+                DispatchQueue.main.asyncAfter(
+                    deadline: .now() + 5.0, execute: waitForHeartbeat)
+                return
+            }
+
+            ws = WebSocketDaemonClient("ws://localhost:3000/daemon?name=networkd") {
+                [self] in
+                getNowPlayingInfo()
+                getIsNowPlaying()
+            }
+        }
+
+        task.resume()
     }
 
     func observeNotification(
