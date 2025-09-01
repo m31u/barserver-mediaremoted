@@ -109,6 +109,8 @@ class MediaRemoteManager {
             getIsNowPlaying()
         }
 
+        waitForHeartbeat()
+
     }
 
     func waitForHeartbeat() {
@@ -147,6 +149,7 @@ class MediaRemoteManager {
     }
 
     func sendInfo(_ info: MediaInfo) {
+        print(info)
         guard let ws = ws else {
             return
         }
