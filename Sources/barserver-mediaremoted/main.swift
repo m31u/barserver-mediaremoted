@@ -5,8 +5,14 @@ struct MediaInfo {
     var Title: String
     var Artist: String
     var Album: String
+    var Artwork: String?
 
     init(withInfo info: [AnyHashable: Any]) {
+        if let artwork = info["kMRMediaRemoteNowPlayingInfoArtworkData"] as? Data,
+            let mime = info["kMRMediaRemoteNowPlayingInfoArtworkMIMEType"] as? String
+        {
+            Artwork = "data:\(mime);base64,\(artwork.base64EncodedString())"
+        }
         Title = info["kMRMediaRemoteNowPlayingInfoTitle"] as? String ?? "NONE"
         Artist = info["kMRMediaRemoteNowPlayingInfoArtist"] as? String ?? "NONE"
         Album = info["kMRMediaRemoteNowPlayingInfoAlbum"] as? String ?? "NONE"
@@ -81,6 +87,7 @@ class MediaRemoteManager {
             "title": info.Title,
             "artist": info.Artist,
             "album": info.Album,
+            "artwork": info.Artwork ?? "NONE",
         ]
 
         ws.send(data: ["type": "UPDATE_NOW_PLAYING", "data": data])
